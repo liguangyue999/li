@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Document</title><link rel=stylesheet href=../css/09.css><link rel=stylesheet href=../css/001.css><style>.car_box{margin:50px auto;width:1000px}.li_top>span{display:inline-block;text-align:center;width:100px;margin:10px 20px}li{list-style:none}.li_wup>span:nth-child(1){width:100px;text-align:center;margin:10px 20px;display:inline-block}.li_wup>span:nth-child(2){width:100px;text-align:center;margin:10px 20px;display:inline-block}.li_wup>span:nth-child(3){width:100px;text-align:center;margin:10px 20px;display:inline-block}.addNum,.cut{width:15px;height:15px;text-align:center;line-height:15px;background:#c5c5c5;display:inline-block;cursor:pointer}.cut{margin-left:52px}.addNum{margin-right:107px}.num{width:20px;height:15px;text-align:center;line-height:15px}.delProduct{margin-left:50px}.back{float:left;margin-left:200px;color:#fd6802;line-height:25px}</style></head><body><div id=top><div class="top1 container"><a href=./index.html class=back>返回首页</a><div class=menu><div class="top11 bd"><span class=log_up>欢迎登录名鞋库</span><span class=log_in>免费注册</span><ul><li class=bd><a href=#>我的名鞋库<i class=sj></i></a></li><li class=bd><a href=#><i class="icons phone"></i>我的名鞋库<i class=sj></i></a></li><li class=bd><a href=#>我的名鞋库</a></li><li class=bd><a href=#><i class="icons qq"></i>我的名鞋库</a></li><li class=bd><a href=#><i class="icons dhua"></i></a></li></ul></div></div></div></div><div class=car_box><li class=li_top><span>商品编号</span> <span>商品图片</span> <span>商品名称</span> <span class=num>商品数量</span> <span>商品价格</span></li><ul class=wup></ul></div><script src=../lib/jquery-1.12.4.js></script><script>var theme=localStorage.getItem("un");
+          if(theme!=null){
+            $(".log_up").html(theme);
+            $('.log_in').html('[ 退出 ]');
+            $('.log_in').attr('class','log_down');
+            $('.log_down').css('cursor','pointer');
+          }
+        $('.log_down').click(function(){
+            $('.log_in_1').css('display','none');
+            localStorage.clear();
+            location.href='./index.html';
+        })  
+
+    function showCart(){
+        $.ajax({
+        url:'../interface/showlist.php',
+        dataType:'json',
+        success:function(res){
+            $('.wup').html("");
+            $.each(res.data,function(index,item){
+                $('.wup').append(`
+                <li class='li_wup'>
+                    <span>${item.product_id}</span>          
+                    <span>
+                        <img src="${item.product_img}" alt="" style="width:48px;height:38px">
+                    </span>          
+                    <span>${item.product_name}</span>
+                    <span class="cut">-</span>          
+                    <span class="num">${item.product_num}</span>   
+                    <span class="addNum">+</span>       
+                    <span>${item.product_price}</span>    
+                    <button class="delProduct">删除该商品</button>
+                </li>
+                `)
+            })
+        }
+        })
+    }
+    showCart()
+    //删除商品
+    $('.wup').on('click','.delProduct',function(){
+        var id = $(this).parent().children().eq(0).html();
+        $.ajax({
+            url:"../interface/delwq.php",
+            data:{
+                id:id
+            },
+            dataType:'json',
+            success:function(res){
+                if(res.code){
+                    showCart()
+                }
+            }
+        })
+    })
+    //增加商品
+    $('ul').on('click','.addNum',function(){
+        var id=$(this).parent().children().eq(0).html();
+        $.ajax({
+            url:"../interface/updatewq.php",
+            dataType:'json',
+            data:{
+                type:'add',
+                id:id,
+            },
+            success:function(res){
+                if(res.code){
+                    showCart()
+                }
+            }
+        })
+    })
+    // 减少商品
+    $('ul').on('click','.cut',function(){
+        var id=$(this).parent().children().eq(0).html();
+        $.ajax({
+            url:"../interface/updatewq.php",
+            dataType:'json',
+            data:{
+                type:'cut',
+                id:id,
+            },
+            success:function(res){
+                if(res.code){
+                    showCart()
+                }
+            }
+        })
+    })</script></body></html>
